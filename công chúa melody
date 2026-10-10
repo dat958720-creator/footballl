@@ -1,0 +1,73 @@
+import random
+import streamlit as st
+
+# Cấu hình trang
+st.set_page_config(page_title="Game Sút Phạt Đền", page_icon="⚽")
+
+st.title("⚽ Game Sút Phạt Đền (Penalty Kick)")
+st.write("Hãy chọn góc sút để đánh bại thủ môn và ghi điểm!")
+
+# 1. Khởi tạo điểm số và lịch sử chơi
+if "score" not in st.session_state:
+    st.session_state.score = 0
+if "high_score" not in st.session_state:
+    st.session_state.high_score = 0
+if "message" not in st.session_state:
+    st.session_state.message = "Hãy chọn hướng sút bên dưới để bắt đầu!"
+
+# Hiển thị bảng điểm
+col_s1, col_s2 = st.columns(2)
+col_s1.metric("🔥 Chuỗi bàn thắng", st.session_state.score)
+col_s2.metric("🏆 Kỷ lục cao nhất", st.session_state.high_score)
+
+st.write("---")
+st.subheader("🥅 Khung Thành")
+st.info(st.session_state.message)
+
+# 2. Định nghĩa hàm xử lý sút bóng
+def shot(player_choice):
+    directions = ["Trái", "Giữa", "Phải"]
+    gk_choice = random.choice(directions)
+
+    if player_choice != gk_choice:
+        st.session_state.score += 1
+        if st.session_state.score > st.session_state.high_score:
+            st.session_state.high_score = st.session_state.score
+
+        st.session_state.message = (
+            f"🎉 **VÀOOOOO!** Bạn sút vào góc **{player_choice}**, "
+            f"thủ môn đã bay người sang **{gk_choice}**!"
+        )
+    else:
+        st.session_state.message = (
+            f"❌ **BỊ BẮT DÍNH!** Bạn sút góc **{player_choice}** "
+            f"và thủ môn cũng đã bắt bài góc **{gk_choice}**."
+        )
+        st.session_state.score = 0  # Reset chuỗi thắng khi thua
+
+
+# 3. Tạo các nút chọn góc sút
+st.write("### 👟 Chọn góc sút của bạn:")
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    if st.button("↖️ Góc Trái", use_container_width=True):
+        shot("Trái")
+        st.rerun()
+
+with col2:
+    if st.button("⬆️ Chính Giữa", use_container_width=True):
+        shot("Giữa")
+        st.rerun()
+
+with col3:
+    if st.button("↗️ Góc Phải", use_container_width=True):
+        shot("Phải")
+        st.rerun()
+
+# Nút chơi lại từ đầu
+st.write("---")
+if st.button("🔄 Làm mới trận đấu"):
+    st.session_state.score = 0
+    st.session_state.message = "Trận đấu mới đã bắt đầu! Hãy chọn góc sút."
+    st.rerun()
